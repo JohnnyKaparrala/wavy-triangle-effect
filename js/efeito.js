@@ -30,7 +30,7 @@ $(document).ready(function () {
 	c.height = $("#sup").parent().height() * c.height / 100;
 	let ctx = c.getContext("2d");
 
-	let tamanho = 90;
+	let tamanho = 100;
 
  	let altura = c.scrollHeight;
  	let largura = c.scrollWidth;
@@ -38,9 +38,9 @@ $(document).ready(function () {
   let pontos = new Array();
   let bonus = 10;
 	for (let i = -bonus; i < largura / tamanho + bonus; i ++) {
-		pontos[i] = new Array();
+		pontos[i+bonus] = new Array();
 		for (let j = -bonus; j < altura / tamanho + bonus; j ++) {
-			pontos[i][j] = new Ponto (tamanho * i, tamanho * j);
+			pontos[i+bonus][j+bonus] = new Ponto (tamanho * i, tamanho * j);
 		}
 	}
 
@@ -65,8 +65,8 @@ $(document).ready(function () {
 
 	function desenharTriangulos (triangulos) {
 		let pontosDeCor = new Array();
-		pontosDeCor.push (new PontoDeCor (0, 0, 255, 247, 251));
-		pontosDeCor.push (new PontoDeCor (largura, altura, 2, 56, 88));
+		pontosDeCor.push (new PontoDeCor (0, 0, 255, 255, 229));
+		pontosDeCor.push (new PontoDeCor (largura, altura, 0, 69, 41));
 		//pontosDeCor.push (new PontoDeCor (largura/2, altura/2, 200, 30, 40));
 
 		for (let i = 0; i < triangulos.length; i++) {
