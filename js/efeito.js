@@ -3,6 +3,11 @@ class Ponto {
     this.x = Math.round(x);
     this.y = Math.round(y);
   }
+
+  pegarAtributos(ponto) {
+    this.x = ponto.x;
+    this.y = ponto.y;
+  }
 }
 
 class PontoDeCor {
@@ -34,7 +39,11 @@ $(document).ready(function () {
 
  	let pontos;
  	let pontosReferencia;
+ 	let pontosDestino;
+ 	let pontosPartida;
  	let triangulos;
+ 	let percentagens;
+ 	let raioAlt = 40;
 
  	init(150);
 
@@ -45,8 +54,8 @@ $(document).ready(function () {
 				let pt_radius_sq = Math.random() * raio * raio;
 		    let pt_x = Math.sqrt(pt_radius_sq) * Math.cos(angulo);
 		    let pt_y = Math.sqrt(pt_radius_sq) * Math.sin(angulo);
-				pontos[i][j].x = pt_x + pontosReferencia[i][j].x;
-				pontos[i][j].y = pt_y + pontosReferencia[i][j].y;
+				pontos[i][j].x = Math.round(pt_x + pontosReferencia[i][j].x);
+				pontos[i][j].y = Math.round(pt_y + pontosReferencia[i][j].y);
 			}
 		}
 	}
@@ -56,7 +65,7 @@ $(document).ready(function () {
 		let pt_radius_sq = Math.random() * raio * raio;
     let pt_x = Math.sqrt(pt_radius_sq) * Math.cos(angulo);
     let pt_y = Math.sqrt(pt_radius_sq) * Math.sin(angulo);
-		return new Ponto(pontoRef.x + pt_x, pontoRef.y + pt_y);
+		return new Ponto(Math.round(pontoRef.x + pt_x), Math.round(pontoRef.y + pt_y));
 	}
 
 	function init (raio) {
@@ -64,11 +73,11 @@ $(document).ready(function () {
 
 
 	  pontos = new Array();
-	  let bonus = 10;
+	  let bonus = 5;
 		for (let i = -bonus; i < largura / tamanho + bonus; i ++) {
 			pontos[i+bonus] = new Array();
 			for (let j = -bonus; j < altura / tamanho + bonus; j ++) {
-				pontos[i+bonus][j+bonus] = new Ponto (tamanho * i, tamanho * j);
+				pontos[i+bonus][j+bonus] = new Ponto (Math.round(tamanho * i), Math.round(tamanho * j));
 			}
 		}
 
@@ -80,13 +89,32 @@ $(document).ready(function () {
 			}
 		}
 
+		pontosDestino = new Array();
+		for (let i = 0; i < pontos.length; i ++) {
+			pontosDestino[i] = new Array(Math.ceil(altura / tamanho + bonus));
+		}
+
+		pontosPartida = new Array();
+		for (let i = 0; i < pontos.length; i ++) {
+			pontosPartida[i] = new Array(Math.ceil(altura / tamanho + bonus));
+		}
+
+		percentagens = new Array();
+		for (let i = -bonus; i < largura / tamanho + bonus; i ++) {
+			percentagens[i+bonus] = new Array();
+			for (let j = -bonus; j < altura / tamanho + bonus; j ++) {
+				percentagens[i+bonus][j+bonus] = 0;
+			}
+		}
+
+
 		//comeca a formar os triangulos
 		triangulos = new Array();
 		let triCont = 0;
 		for (let i = 0; i < pontos.length; i++) {
 				for (let j = 0; j < pontos[i].length; j++) {
 					if (i < pontos.length - 1 && j < pontos[i].length - 1) {
-						console.log((i+1) + ", " + (j+1));
+						//console.log((i+1) + ", " + (j+1));
 						triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i][j+1], pontos[i+1][j+1]);
 						triCont++;
 						triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i+1][j], pontos[i+1][j+1]);
@@ -94,34 +122,49 @@ $(document).ready(function () {
 					}
 			}
 		}
-		randomize(pontos, pontosReferencia, 60);
+		randomize(pontos, pontosReferencia, raioAlt);
 		passo();
 	}
 
 	function passo () {
-		//setar um destino, se ja tiver um, andar ate ele, para cada ponto
+		for (let i = 0; i < pontos.length; i ++) {
+			for (let j = 0; j < pontos[i].length; j ++) {
+				if (pontosDestino[i][j] == undefined || pontosDestino[i][j] === null) {
+					pontosPartida[i][j] = new Ponto(pontos[i][j].x, pontos[i][j].y);
+					pontosDestino[i][j] = gerarNovoPonto(pontosReferencia[i][j], raioAlt);
+					percentagens[i][j] = 0;
+				}
+				else if (percentagens[i][j] >= 100) {
+					pontosDestino[i][j] = null;
+				}
+				else {
+					pontos[i][j].x = pontosPartida[i][j].x + (pontosDestino[i][j].x - pontosPartida[i][j].x) * percentagens[i][j]/100;
+					pontos[i][j].y = pontosPartida[i][j].y + (pontosDestino[i][j].y - pontosPartida[i][j].y) * percentagens[i][j]/100;
+					percentagens[i][j] += Math.random();
+				}
+			}
+		}
+
 		desenharTriangulos(triangulos);
     window.requestAnimationFrame(passo);
 	}
 
-	function calcSpeed(prev, next) {
-    
-    let x = Math.abs(prev.x - next.x);
-    let y = Math.abs(prev.y - next.y);
-    
-    let greatest = x > y ? x : y;
-    
-    let speedModifier = 0.1;
+	function angulo(pontoC, pontoE) {
+	  let d = new Ponto(pontoE.x - pontoC.x, pontoE.y - pontoC.y);
+	  let theta = Math.atan2(d.y, d.x); // range [-PI, PI]
+	  theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+	  //if (theta < 0) theta = 360 + theta; // range [0, 360)
+	  return theta;
+	}
 
-    let speed = Math.ceil(greatest/speedModifier);
-
-    return speed;
+	function round(v) {
+    return (v >= 0 || -1) * Math.round(Math.abs(v));
 	}
 
 	function desenharTriangulos (triangulos) {
 		let pontosDeCor = new Array();
-		pontosDeCor.push (new PontoDeCor (0, 0, 255, 255, 229));
-		pontosDeCor.push (new PontoDeCor (largura, altura, 0, 69, 41));
+		pontosDeCor.push (new PontoDeCor (0, 0, 255, 247, 236));
+		pontosDeCor.push (new PontoDeCor (largura, altura, 127, 0, 0));
 		//pontosDeCor.push (new PontoDeCor (largura/2, altura/2, 200, 30, 40));
 
 		for (let i = 0; i < triangulos.length; i++) {
