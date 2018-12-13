@@ -43,7 +43,7 @@ $(document).ready(function () {
  	let pontosPartida;
  	let triangulos;
  	let percentagens;
- 	let raioAlt = 40;
+ 	let raioAlt = 65;
 
  	init(150);
 
