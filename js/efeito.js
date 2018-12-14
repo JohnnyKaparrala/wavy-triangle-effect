@@ -11,12 +11,13 @@ class Ponto {
 }
 
 class PontoDeCor {
-  constructor(x, y, r, g, b) {
+  constructor(x, y, r, g, b, peso) {
     this.x = Math.round(x);
     this.y = Math.round(y);
     this.r = r;
     this.g = g;
     this.b = b;
+    this.peso = peso;
   }
 }
 
@@ -43,7 +44,7 @@ $(document).ready(function () {
  	let pontosPartida;
  	let triangulos;
  	let percentagens;
- 	let raioAlt = 65;
+ 	let raioAlt = 60;
 
  	init(150);
 
@@ -163,9 +164,9 @@ $(document).ready(function () {
 
 	function desenharTriangulos (triangulos) {
 		let pontosDeCor = new Array();
-		pontosDeCor.push (new PontoDeCor (0, 0, 255, 247, 236));
-		pontosDeCor.push (new PontoDeCor (largura, altura, 127, 0, 0));
-		//pontosDeCor.push (new PontoDeCor (largura/2, altura/2, 200, 30, 40));
+		pontosDeCor.push (new PontoDeCor (0, 0, 247, 252, 253, .5));
+		pontosDeCor.push (new PontoDeCor (largura, altura, 77, 0, 75, 1));
+		//pontosDeCor.push (new PontoDeCor (largura, 0, 0, 255, 63));
 
 		for (let i = 0; i < triangulos.length; i++) {
 			// the triangle
@@ -184,21 +185,21 @@ $(document).ready(function () {
 			for (let j = 0; j < pontosDeCor.length; j++) {
 				let a = pontosDeCor[j].x - centroTriangulo.x;
 				let b = pontosDeCor[j].y - centroTriangulo.y;
-				let dist = Math.sqrt(a*a + b*b);
-				totalDist += dist;
+				let dist = Math.pow(a*a + b*b, 0.4);
+				totalDist += dist * pontosDeCor[j].peso;
 			}
 
 			for (let j = 0; j < pontosDeCor.length; j++) {
 				let a = pontosDeCor[j].x - centroTriangulo.x;
 				let b = pontosDeCor[j].y - centroTriangulo.y;
-				let dist = Math.sqrt(a*a + b*b);
-				totalR += (totalDist - dist) * pontosDeCor[j].r;
-				totalG += (totalDist - dist) * pontosDeCor[j].g;
-				totalB += (totalDist - dist) * pontosDeCor[j].b;
+				let dist = Math.pow(a*a + b*b, 0.4);
+				totalR += dist * pontosDeCor[j].r * pontosDeCor[j].peso;
+				totalG += dist * pontosDeCor[j].g * pontosDeCor[j].peso;
+				totalB += dist * pontosDeCor[j].b * pontosDeCor[j].peso;
 			}
-			let r = Math.round (totalR / totalDist);
-			let g = Math.round (totalG / totalDist);
-			let b = Math.round (totalB / totalDist);
+			let r = Math.round (totalR / (totalDist));
+			let g = Math.round (totalG / (totalDist));
+			let b = Math.round (totalB / (totalDist));
 
 
 			ctx.lineWidth = 1;
