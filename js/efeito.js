@@ -46,7 +46,31 @@ $(document).ready(function () {
  	let percentagens;
  	let raioAlt = 60;
 
- 	init(150);
+ 	let cores = new Array();
+ 	for (let i = 0; i < 4; i++) {
+ 		cores[i] = new Array(3);
+ 	}
+ 	let perct = .07;
+ 	//laranja
+ 	cores[0][0] = new PontoDeCor (largura/2, altura/2, 253, 141, 60, .2);
+ 	cores[0][1] = new PontoDeCor (perct * largura, perct * altura, 227, 26, 28, 1);
+ 	cores[0][2] = new PontoDeCor (largura - perct * largura, altura -perct * altura, 254, 217, 118, 1);
+ 	//verde
+ 	cores[1][0] = new PontoDeCor (perct * largura, perct * altura, 204, 236, 230, 1);
+ 	cores[1][1] = new PontoDeCor (largura/2, altura/2, 102, 194, 164, .3);
+ 	cores[1][2] = new PontoDeCor (largura - perct * largura, altura -perct * altura, 35, 139, 69, 1);
+ 	//azul
+ 	cores[2][0] = new PontoDeCor (perct * largura, perct * altura, 34, 94, 168, 1);
+ 	cores[2][1] = new PontoDeCor (largura/2, altura/2, 65, 182, 196, .2);
+ 	cores[2][2] = new PontoDeCor (largura - perct * largura, altura -perct * altura, 199, 233, 180, 1);
+ 	//rosa
+ 	cores[3][0] = new PontoDeCor (perct * largura, perct * altura, 174, 1, 126, 1);
+ 	cores[3][1] = new PontoDeCor (largura/2, altura/2, 247, 104, 161, .4);
+ 	cores[3][2] = new PontoDeCor (largura - perct * largura, altura -perct * altura, 252, 197, 192, 1);
+
+	let indexCorAtual = Math.round(Math.random() * (cores.length - 1) );
+
+ 	init(200);
 
 	function randomize (pontos, pontosReferencia, raio) {
 		for (let i = 0; i < pontos.length; i++) {
@@ -115,11 +139,23 @@ $(document).ready(function () {
 		for (let i = 0; i < pontos.length; i++) {
 				for (let j = 0; j < pontos[i].length; j++) {
 					if (i < pontos.length - 1 && j < pontos[i].length - 1) {
-						//console.log((i+1) + ", " + (j+1));
-						triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i][j+1], pontos[i+1][j+1]);
-						triCont++;
-						triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i+1][j], pontos[i+1][j+1]);
-						triCont++;
+						let num = Math.round (Math.random());
+						switch (num) {
+							case 0: {
+								triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i][j+1], pontos[i+1][j+1]);
+								triCont++;
+								triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i+1][j], pontos[i+1][j+1]);
+								triCont++;
+							}
+							break;
+							case 1: {
+								triangulos[triCont] = new Triangulo(pontos[i][j], pontos[i+1][j], pontos[i][j+1]);
+								triCont++;
+								triangulos[triCont] = new Triangulo(pontos[i][j+1], pontos[i+1][j], pontos[i+1][j+1]);
+								triCont++;
+							}
+							break;
+						}
 					}
 			}
 		}
@@ -164,9 +200,9 @@ $(document).ready(function () {
 
 	function desenharTriangulos (triangulos) {
 		let pontosDeCor = new Array();
-		pontosDeCor.push (new PontoDeCor (0, 0, 247, 252, 253, .5));
-		pontosDeCor.push (new PontoDeCor (largura, altura, 77, 0, 75, 1));
-		//pontosDeCor.push (new PontoDeCor (largura, 0, 0, 255, 63));
+		pontosDeCor.push (cores[indexCorAtual][0]);
+		pontosDeCor.push (cores[indexCorAtual][1]);
+		pontosDeCor.push (cores[indexCorAtual][2]);
 
 		for (let i = 0; i < triangulos.length; i++) {
 			// the triangle

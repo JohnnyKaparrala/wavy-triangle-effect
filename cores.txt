@@ -1,0 +1,19 @@
+laranja
+new PontoDeCor (largura/2, altura/2, 253, 141, 60, .2)
+new PontoDeCor (perct * largura, perct * altura, 227, 26, 28, 1)
+new PontoDeCor (largura - perct * largura, altura -perct * altura, 254, 217, 118, 1)
+
+verde
+new PontoDeCor (perct * largura, perct * altura, 204, 236, 230, 1)
+new PontoDeCor (largura/2, altura/2, 102, 194, 164, .3)
+new PontoDeCor (largura - perct * largura, altura -perct * altura, 35, 139, 69, 1)
+
+azul
+new PontoDeCor (perct * largura, perct * altura, 34, 94, 168, 1)
+new PontoDeCor (largura/2, altura/2, 65, 182, 196, .2)
+new PontoDeCor (largura - perct * largura, altura -perct * altura, 199, 233, 180, 1)
+
+rosa
+new PontoDeCor (perct * largura, perct * altura, 174, 1, 126, 1)
+new PontoDeCor (largura/2, altura/2, 247, 104, 161, .4)
+new PontoDeCor (largura - perct * largura, altura -perct * altura, 252, 197, 192, 1)
