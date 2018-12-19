@@ -31,7 +31,7 @@ $(document).ready(function () {
 	}
 
 	class Effect {
-		constructor (pontos, pontosDestino, pontosPartida, pontosReferencia, triangulos, percentagens, raioAlt, cor, canvas, ctx, altura, largura) {
+		constructor (pontos, pontosDestino, pontosPartida, pontosReferencia, triangulos, percentagens, raioAlt, cor, indexCorAtual, canvas, ctx, altura, largura) {
 			this.pontos = pontos;
 			this.pontosDestino = pontosDestino;
 			this.pontosPartida = pontosPartida;
@@ -45,6 +45,7 @@ $(document).ready(function () {
 			this.altura = altura;
 			this.largura = largura;
 			this.bonus = 5;
+			this.indexCorAtual = indexCorAtual;
 		}
 
 		init () {
@@ -158,15 +159,16 @@ $(document).ready(function () {
 	  return theta;
 	}
 
+	let effects;
 	function init () {
 		let elementsCanvas = $(".effect");
 		let tam = elementsCanvas.length;
-		let effects = new Array(tam);
+		effects = new Array(tam);
 		for (let index = 0; index < tam; index++) {
 			let c = elementsCanvas[index];
 
-			c.width = $(elementsCanvas[index]).parent().width() * c.width / 100;
-			c.height = $(elementsCanvas[index]).parent().height() * c.height / 100;
+			c.width = $(elementsCanvas[index]).parent().width() * $(c).attr("widthPerc") / 100;
+			c.height = $(elementsCanvas[index]).parent().height() * $(c).attr("heightPerc") / 100;
 			let ctx = elementsCanvas[index].getContext("2d");
 			let altura = c.scrollHeight;
 		 	let largura = c.scrollWidth;
@@ -250,8 +252,8 @@ $(document).ready(function () {
 		 	}
 		 	let perct = .07;
 		 	//laranja
-		 	cores[0][0] = new PontoDeCor (largura/2, altura/2, 253, 141, 60, .2);
-		 	cores[0][1] = new PontoDeCor (perct * largura, perct * altura, 227, 26, 28, 1);
+		 	cores[0][0] = new PontoDeCor (perct * largura, perct * altura, 227, 26, 28, 1);
+		 	cores[0][1] = new PontoDeCor (largura/2, altura/2, 253, 141, 60, .2);
 		 	cores[0][2] = new PontoDeCor (largura - perct * largura, altura -perct * altura, 254, 217, 118, 1);
 		 	//verde
 		 	cores[1][0] = new PontoDeCor (perct * largura, perct * altura, 204, 236, 230, 1);
@@ -292,10 +294,92 @@ $(document).ready(function () {
 				}break;
 			}
 
-			effects[index] = new Effect(pontos, pontosDestino, pontosPartida, pontosReferencia, triangulos, percentagens, raioAlt, cores[indexCorAtual], c, ctx, altura, largura);
+			effects[index] = new Effect(pontos, pontosDestino, pontosPartida, pontosReferencia, triangulos, percentagens, raioAlt, cores[indexCorAtual], indexCorAtual, c, ctx, altura, largura);
 			effects[index].init();
 		}
 	}
 
 	init();
+
+	$(window).resize(function() {
+		for (let index = 0; index < effects.length; index++) {
+
+			let c = $(effects[index].canvas);
+
+			c.attr("width", $(c).parent().width() * $(c).attr("widthPerc") / 100);
+			c.attr("height", $(c).parent().height() * $(c).attr("heightPerc") / 100);
+			effects[index].altura = c.attr("height");
+		 	effects[index].largura = c.attr("width");
+
+		 	let tamanho = c.attr("tamanho");
+
+			effects[index].pontos = new Array();
+			for (let i = -effects[index].bonus; i < effects[index].largura / tamanho + effects[index].bonus; i ++) {
+				effects[index].pontos[i+effects[index].bonus] = new Array();
+				for (let j = -effects[index].bonus; j < effects[index].altura / tamanho + effects[index].bonus; j ++) {
+					effects[index].pontos[i+effects[index].bonus][j+effects[index].bonus] = new Ponto (Math.round(tamanho * i), Math.round(tamanho * j));
+				}
+			}
+
+			effects[index].pontosReferencia = new Array();
+			for (let i = -effects[index].bonus; i < effects[index].largura / tamanho + effects[index].bonus; i ++) {
+				effects[index].pontosReferencia[i+effects[index].bonus] = new Array();
+				for (let j = -effects[index].bonus; j < effects[index].altura / tamanho + effects[index].bonus; j ++) {
+					effects[index].pontosReferencia[i+effects[index].bonus][j+effects[index].bonus] = new Ponto (tamanho * i, tamanho * j);
+				}
+			}
+
+			effects[index].pontosDestino = new Array();
+			for (let i = 0; i < effects[index].pontos.length; i ++) {
+				effects[index].pontosDestino[i] = new Array(Math.ceil(effects[index].altura / tamanho + effects[index].bonus));
+			}
+
+			effects[index].pontosPartida = new Array();
+			for (let i = 0; i < effects[index].pontos.length; i ++) {
+				effects[index].pontosPartida[i] = new Array(Math.ceil(effects[index].altura / tamanho + effects[index].bonus));
+			}
+
+			effects[index].percentagens = new Array();
+			for (let i = -effects[index].bonus; i < effects[index].largura / tamanho + effects[index].bonus; i ++) {
+				effects[index].percentagens[i+effects[index].bonus] = new Array();
+				for (let j = -effects[index].bonus; j < effects[index].altura / tamanho + effects[index].bonus; j ++) {
+					effects[index].percentagens[i+effects[index].bonus][j+effects[index].bonus] = 0;
+				}
+			}
+
+			//comeca a formar os triangulos
+			effects[index].triangulos = new Array();
+			let triCont = 0;
+			for (let i = 0; i < effects[index].pontos.length; i++) {
+				for (let j = 0; j < effects[index].pontos[i].length; j++) {
+					if (i < effects[index].pontos.length - 1 && j < effects[index].pontos[i].length - 1) {
+						let num = Math.round (Math.random());
+						switch (num) {
+							case 0: {
+								effects[index].triangulos[triCont] = new Triangulo(effects[index].pontos[i][j], effects[index].pontos[i][j+1], effects[index].pontos[i+1][j+1]);
+								triCont++;
+								effects[index].triangulos[triCont] = new Triangulo(effects[index].pontos[i][j], effects[index].pontos[i+1][j], effects[index].pontos[i+1][j+1]);
+								triCont++;
+							}
+							break;
+							case 1: {
+								effects[index].triangulos[triCont] = new Triangulo(effects[index].pontos[i][j], effects[index].pontos[i+1][j], effects[index].pontos[i][j+1]);
+								triCont++;
+								effects[index].triangulos[triCont] = new Triangulo(effects[index].pontos[i][j+1], effects[index].pontos[i+1][j], effects[index].pontos[i+1][j+1]);
+								triCont++;
+							}
+							break;
+						}
+					}
+				}
+			}
+
+			let perct = 0.07;
+		 	effects[index].cor[0] = new PontoDeCor (perct * effects[index].largura, perct * effects[index].altura, effects[index].cor[0].r, effects[index].cor[0].g, effects[index].cor[0].b, effects[index].cor[0].peso);
+		 	effects[index].cor[1] = new PontoDeCor (effects[index].largura/2, effects[index].altura/2, effects[index].cor[1].r, effects[index].cor[1].g, effects[index].cor[1].b, effects[index].cor[1].peso);
+		 	effects[index].cor[2] = new PontoDeCor (effects[index].largura - perct * effects[index].largura, effects[index].altura -perct * effects[index].altura, effects[index].cor[2].r, effects[index].cor[2].g, effects[index].cor[2].b, effects[index].cor[2].peso);
+
+			randomize(effects[index].pontos, effects[index].pontosReferencia, c.attr("raioDistancia"));
+		}
+	})
 })
