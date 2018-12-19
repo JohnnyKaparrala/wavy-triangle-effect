@@ -177,7 +177,7 @@ $(document).ready(function () {
 		 	let pontosPartida;
 		 	let triangulos;
 		 	let percentagens;
-		 	let tamanho = 200;
+		 	let tamanho = $(elementsCanvas[index]).attr("tamanho");
 
 
 		  pontos = new Array();
@@ -242,7 +242,7 @@ $(document).ready(function () {
 				}
 			}
 
-		 	let raioAlt = 60;
+		 	let raioAlt = $(elementsCanvas[index]).attr("raioDistancia");
 
 		 	let cores = new Array();
 		 	for (let i = 0; i < 5; i++) {
@@ -270,10 +270,30 @@ $(document).ready(function () {
 		 	cores[4][1] = new PontoDeCor (largura/2, altura/2, 254, 153, 41, .1);
 		 	cores[4][2] = new PontoDeCor (largura - perct * largura, altura -perct * altura, 254, 227, 145, 1);
 			
-			let indexCorAtual = Math.round(Math.random() * (cores.length - 1) );
+			let indexCorAtual;
+			switch ($(elementsCanvas[index]).attr("cor")) {
+				case "laranja": {
+					indexCorAtual = 0;
+				}break;
+				case "verde": {
+					indexCorAtual = 1;
+				}break;
+				case "azul": {
+					indexCorAtual = 2;
+				}break;
+				case "rosa": {
+					indexCorAtual = 3;
+				}break;
+				case "amarelo": {
+					indexCorAtual = 4;
+				}break;
+				default: {
+					indexCorAtual = Math.round(Math.random() * (cores.length - 1) );
+				}break;
+			}
 
 			effects[index] = new Effect(pontos, pontosDestino, pontosPartida, pontosReferencia, triangulos, percentagens, raioAlt, cores[indexCorAtual], c, ctx, altura, largura);
-			effects[index].init(200);
+			effects[index].init();
 		}
 	}
 
