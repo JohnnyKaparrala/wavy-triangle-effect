@@ -74,7 +74,7 @@ $(document).ready(function () {
 
 			this.desenharTriangulos(this.triangulos);
 			if (typeof suaFunc === "function") { 
-			    suaFunc(ctx);
+			    suaFunc(this.ctx);
 			}
 			window.requestAnimationFrame(this.passo.bind(this));
 		}
